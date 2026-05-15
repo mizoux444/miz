@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تتبع الحساب</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #21253a;
+    --accent: #4f8ef7;
+    --accent2: #f7954f;
+    --danger: #e05252;
+    --success: #52c97a;
+    --warning: #f7c94f;
+    --text: #e8eaf6;
+    --muted: #7b82a8;
+    --border: #2e3350;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 100px 0;
+  }
+
+  /* Header */
+  .app-header {
+    background: linear-gradient(135deg, #1a1d27 0%, #12152a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 16px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+
+  .app-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .total-box {
+    margin-top: 10px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--accent) 0%, #2563c7 100%);
+    border-radius: var(--radius);
+    padding: 12px 20px;
+  }
+
+  .total-label {
+    font-size: 12px;
+    opacity: 0.85;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .total-amount {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 2px;
+  }
+
+  /* Notification bell */
+  .notif-btn {
+    position: absolute;
+    left: 16px;
+    top: 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all .2s;
+  }
+  .notif-btn:hover { background: var(--accent); }
+  .notif-badge {
+    position: absolute;
+    top: -4px; left: -4px;
+    background: var(--danger);
+    color: white;
+    border-radius: 50%;
+    width: 18px; height: 18px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    display: none;
+  }
+
+  /* Alerts */
+  .alerts-panel {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+  }
+  .alerts-box {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .alerts-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--warning);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .alert-item {
+    background: var(--card);
+    border-right: 4px solid var(--warning);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .alert-item.urgent { border-color: var(--danger); }
+  .alert-item.safe { border-color: var(--success); }
+  .alert-name { font-weight: 700; font-size: 15px; }
+  .alert-info { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .alert-days { font-weight: 800; margin-top: 4px; }
+  .close-alerts {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 12px;
+    cursor: pointer;
+  }
+
+  /* Cards */
+  .container { padding: 12px 12px 0; }
+
+  .card {
+    background: var(--card);
+    margin-bottom: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(79,142,247,0.12); }
+
+  .card-header {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .card-header:hover { background: rgba(79,142,247,0.07); }
+
+  .person-name {
+    font-weight: 700;
+    font-size: 16px;
+    flex: 1;
+  }
+
+  .person-total {
+    background: var(--accent);
+    color: white;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .card-toggle {
+    margin-right: 10px;
+    color: var(--muted);
+    font-size: 18px;
+    transition: transform .3s;
+  }
+  .card.open .card-toggle { transform: rotate(180deg); }
+
+  .card-body {
+    display: none;
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .card.open .card-body { display: block; }
+
+  .name-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    margin-bottom: 12px;
+    text-align: right;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .name-input:focus { border-color: var(--accent); }
+
+  /* Ops */
+  .ops-list { margin-bottom: 10px; }
+
+  .op-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .op-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .field-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .field-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: .5px;
+  }
+
+  .field-input {
+    padding: 8px 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color .2s;
+    text-align: right;
+  }
+  .field-input:focus { border-color: var(--accent); }
+
+  .withdraw-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 6px;
+  }
+  .status-urgent { background: rgba(224,82,82,0.15); color: var(--danger); }
+  .status-soon   { background: rgba(247,201,79,0.15); color: var(--warning); }
+  .status-ok     { background: rgba(82,201,122,0.15); color: var(--success); }
+  .status-none   { background: rgba(123,130,168,0.1); color: var(--muted); }
+
+  .del-op-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(224,82,82,0.12);
+    border: none;
+    border-radius: 8px;
+    color: var(--danger);
+    padding: 5px 9px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background .2s;
+  }
+  .del-op-btn:hover { background: rgba(224,82,82,0.3); }
+
+  /* Buttons */
+  .btn {
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-blue { background: var(--accent); color: white; }
+  .btn-red  { background: var(--danger); color: white; margin-top: 8px; }
+  .btn-add-op { background: rgba(79,142,247,0.12); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); margin-bottom: 8px; }
+
+  /* FAB */
+  .fab {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent), #2563c7);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 32px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(79,142,247,0.4);
+    transition: box-shadow .2s, transform .1s;
+  }
+  .fab:hover { box-shadow: 0 12px 32px rgba(79,142,247,0.5); }
+  .fab:active { transform: translateX(-50%) scale(0.97); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="app-header">
+  <div style="position:relative;">
+    <div class="app-title">📊 تتبع الحساب</div>
+    <div class="notif-btn" onclick="openAlerts()" title="الإشعارات">
+      🔔
+      <div class="notif-badge" id="notifBadge">0</div>
+    </div>
+  </div>
+  <div class="total-box">
+    <div class="total-label">الرصيد الإجمالي</div>
+    <div class="total-amount" id="total">0.00 د.م</div>
+  </div>
+</div>
+
+<!-- Alerts Panel -->
+<div class="alerts-panel" id="alertsPanel" onclick="closeAlerts(event)">
+  <div class="alerts-box">
+    <div class="alerts-title">🔔 تنبيهات الشيكات</div>
+    <div id="alertsList"></div>
+    <button class="close-alerts" onclick="closeAlerts()">إغلاق</button>
+  </div>
+</div>
+
+<!-- Cards Container -->
+<div class="container" id="container">
+  <div class="empty-state" id="emptyState">
+    <div class="icon">📂</div>
+    <p>لا يوجد مستفيدون بعد.<br>اضغط على الزر أدناه لإضافة مستفيد.</p>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="addPerson()">➕ إضافة مستفيد</button>
+
+<script>
+// ─── Utils ───────────────────────────────────────────────
+function getDaysUntil(dateStr) {
+  if (!dateStr) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr); target.setHours(0,0,0,0);
+  return Math.ceil((target - today) / 86400000);
+}
+
+function statusFor(days) {
+  if (days === null) return { cls: 'status-none', text: 'لا يوجد تاريخ سحب' };
+  if (days < 0)      return { cls: 'status-urgent', text: `تأخر ${Math.abs(days)} يوم ⚠️` };
+  if (days === 0)    return { cls: 'status-urgent', text: 'اليوم هو يوم السحب! 🚨' };
+  if (days <= 3)     return { cls: 'status-soon',   text: `باقي ${days} يوم 🔔` };
+  return { cls: 'status-ok', text: `باقي ${days} يوم ✅` };
+}
+
+// ─── Notification Permission ──────────────────────────────
+function requestNotifPermission() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+
+function sendBrowserNotif(title, body) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification(title, { body, icon: "📊" });
+  }
+}
+
+// ─── Calculate & Save ────────────────────────────────────
+function calculate() {
+  const cards = document.querySelectorAll(".card");
+  let total = 0;
+  let data = [];
+  let alerts = [];
+
+  cards.forEach(card => {
+    const nameInput = card.querySelector(".name-input");
+    const name = nameInput ? nameInput.value.trim() || "بدون اسم" : "بدون اسم";
+    const ops = card.querySelectorAll(".op-card");
+    let personTotal = 0;
+    let personOps = [];
+
+    ops.forEach(op => {
+      const inputs = op.querySelectorAll(".field-input");
+      const amount = Number(inputs[1] ? inputs[1].value : 0) || 0;
+      const dateVal = inputs[0] ? inputs[0].value : "";
+      const withdrawDate = inputs[2] ? inputs[2].value : "";
+
+      personTotal += amount;
+      total += amount;
+
+      // Status badge
+      const days = getDaysUntil(withdrawDate);
+      const status = statusFor(days);
+      const statusEl = op.querySelector(".withdraw-status");
+      if (statusEl) {
+        statusEl.className = "withdraw-status " + status.cls;
+        statusEl.textContent = status.text;
+      }
+
+      // Collect alerts
+      if (days !== null && days <= 3) {
+        alerts.push({ name, amount, withdrawDate, days });
+      }
+
+      personOps.push({ date: dateVal, amount, withdrawDate });
+    });
+
+    // Update header total
+    const totalBadge = card.querySelector(".person-total");
+    if (totalBadge) totalBadge.textContent = personTotal.toFixed(2) + " د.م";
+
+    // Update header name
+    const nameDiv = card.querySelector(".person-name");
+    if (nameDiv) nameDiv.textContent = name;
+
+    data.push({ name: nameInput ? nameInput.value : "", ops: personOps });
+  });
+
+  document.getElementById("total").textContent = total.toFixed(2) + " د.م";
+  document.getElementById("emptyState").style.display = cards.length === 0 ? "block" : "none";
+
+  localStorage.setItem("data", JSON.stringify(data));
+  updateAlertsBadge(alerts);
+  window._alerts = alerts;
+
+  // Send browser notifications for urgent ones
+  alerts.forEach(a => {
+    const key = "notif_" + a.name + "_" + a.withdrawDate;
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, "1");
+      if (a.days <= 3) {
+        sendBrowserNotif(
+          "🔔 تنبيه شيك",
+          `${a.name}: موعد السحب ${a.days === 0 ? "اليوم!" : `بعد ${a.days} يوم`} — ${a.amount.toFixed(2)} د.م`
+        );
+      }
+    }
+  });
+}
+
+function updateAlertsBadge(alerts) {
+  const badge = document.getElementById("notifBadge");
+  if (alerts.length > 0) {
+    badge.style.display = "flex";
+    badge.textContent = alerts.length;
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+// ─── Alerts Panel ────────────────────────────────────────
+function openAlerts() {
+  const panel = document.getElementById("alertsPanel");
+  const list  = document.getElementById("alertsList");
+  const alerts = window._alerts || [];
+
+  if (alerts.length === 0) {
+    list.innerHTML = `
+      <div style="text-align:center;padding:24px;color:var(--success);font-size:15px;font-weight:700;">
+        ✅ لا توجد شيكات تستحق خلال 3 أيام
+      </div>`;
+  } else {
+    list.innerHTML = alerts.map(a => {
+      const cls = a.days <= 0 ? "urgent" : a.days <= 1 ? "urgent" : "";
+      const dayText = a.days < 0 ? `تأخر ${Math.abs(a.days)} يوم ⚠️`
+                    : a.days === 0 ? "اليوم! 🚨"
+                    : `بعد ${a.days} يوم 🔔`;
+      return `
+        <div class="alert-item ${cls}">
+          <div class="alert-name">👤 ${a.name}</div>
+          <div class="alert-info">المبلغ: ${a.amount.toFixed(2)} د.م &nbsp;|&nbsp; تاريخ السحب: ${a.withdrawDate}</div>
+          <div class="alert-days" style="color:${a.days <= 1 ? 'var(--danger)' : 'var(--warning)'}">⏰ ${dayText}</div>
+        </div>`;
+    }).join("");
+  }
+
+  panel.style.display = "flex";
+}
+
+function closeAlerts(e) {
+  if (!e || e.target === document.getElementById("alertsPanel")) {
+    document.getElementById("alertsPanel").style.display = "none";
+  }
+}
+
+// ─── Add Person ──────────────────────────────────────────
+function addPerson(data = {}) {
+  const container = document.getElementById("container");
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="person-name">بدون اسم</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="person-total">0.00 د.م</span>
+        <span class="card-toggle">▾</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <input class="name-input" type="text" placeholder="اسم المستفيد">
+      <div class="ops-list"></div>
+      <button class="btn btn-add-op" onclick="addOp(this)">➕ إضافة شيك / عملية</button>
+      <button class="btn btn-red" onclick="deletePerson(this)">❌ حذف المستفيد</button>
+    </div>
+  `;
+
+  container.appendChild(card);
+
+  const header   = card.querySelector(".card-header");
+  const cardBody = card.querySelector(".card-body");
+  const nameInput = card.querySelector(".name-input");
+  const opsContainer = card.querySelector(".ops-list");
+
+  nameInput.value = data.name || "";
+  nameInput.oninput = calculate;
+
+  // Toggle
+  header.onclick = () => {
+    card.classList.toggle("open");
+  };
+  card.classList.add("open"); // open by default
+
+  // Load ops
+  if (data.ops && data.ops.length > 0) {
+    data.ops.forEach(o => addOp(null, opsContainer, o));
+  } else {
+    addOp(null, opsContainer);
+  }
+
+  calculate();
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// ─── Add Op ──────────────────────────────────────────────
+function addOp(btn, container = null, data = {}) {
+  if (!container) {
+    container = btn.closest(".card-body").querySelector(".ops-list");
+  }
+
+  const div = document.createElement("div");
+  div.className = "op-card";
+
+  div.innerHTML = `
+    <button class="del-op-btn" onclick="deleteOp(this)">✕</button>
+    <div class="op-row">
+      <div class="field-wrap">
+        <span class="field-label">تاريخ الإصدار</span>
+        <input class="field-input" type="date" placeholder="تاريخ">
+      </div>
+      <div class="field-wrap">
+        <span class="field-label">المبلغ (د.م)</span>
+        <input class="field-input" type="number" placeholder="0.00">
+      </div>
+    </div>
+    <div class="field-wrap">
+      <span class="field-label">تاريخ السحب</span>
+      <input class="field-input" type="date" placeholder="تاريخ السحب">
+    </div>
+    <div class="withdraw-status status-none" style="margin-top:8px;">لا يوجد تاريخ سحب</div>
+  `;
+
+  container.appendChild(div);
+
+  const inputs = div.querySelectorAll(".field-input");
+  inputs[0].value = data.date || new Date().toISOString().split('T')[0];
+  inputs[1].value = data.amount || "";
+  inputs[2].value = data.withdrawDate || "";
+
+  inputs.forEach(i => i.oninput = calculate);
+  calculate();
+}
+
+// ─── Delete ──────────────────────────────────────────────
+function deleteOp(btn) {
+  btn.closest(".op-card").remove();
+  calculate();
+}
+
+function deletePerson(btn) {
+  if (confirm("⚠️ واش متأكد بغيتي تحذف هاد المستفيد؟")) {
+    btn.closest(".card").remove();
+    calculate();
+  }
+}
+
+// ─── Boot ────────────────────────────────────────────────
+window.onload = function () {
+  requestNotifPermission();
+
+  // Check every minute for upcoming withdrawals
+  setInterval(() => calculate(), 60000);
+
+  const saved = JSON.parse(localStorage.getItem("data") || "[]");
+  window._alerts = [];
+
+  if (saved.length === 0) {
+    addPerson();
+  } else {
+    saved.forEach(p => addPerson(p));
+  }
+};
+</script>
+
+</body>
+</html>
