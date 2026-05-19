@@ -1,663 +1,532 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تتبع الحساب</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>Mizoux TV - تحميل التطبيق</title>
+<meta name="description" content="تطبيق Mizoux TV لمشاهدة القنوات المباشرة بجودة عالية مجاناً"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
 <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --card: #21253a;
-    --accent: #4f8ef7;
-    --accent2: #f7954f;
-    --danger: #e05252;
-    --success: #52c97a;
-    --warning: #f7c94f;
-    --text: #e8eaf6;
-    --muted: #7b82a8;
-    --border: #2e3350;
-    --radius: 14px;
+    --brand: #7c3aed;
+    --brand-dark: #5b21b6;
+    --brand-light: #ede9fe;
+    --accent: #f59e0b;
+    --bg: #f8f7ff;
+    --card: #ffffff;
+    --text: #1e1333;
+    --muted: #6b7280;
+    --border: #e5e0f5;
+    --green: #10b981;
+    --radius: 18px;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
 
   body {
-    font-family: 'Tajawal', sans-serif;
+    font-family: 'Cairo', sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 0 0 100px 0;
   }
 
-  /* Header */
-  .app-header {
-    background: linear-gradient(135deg, #1a1d27 0%, #12152a 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 20px 16px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(12px);
-  }
-
-  .app-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--accent);
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #4c1d95 0%, #1e40af 100%);
+    padding: 1.5rem 1.25rem 2rem;
     text-align: center;
-    letter-spacing: 1px;
-  }
-
-  .total-box {
-    margin-top: 10px;
-    text-align: center;
-    background: linear-gradient(135deg, var(--accent) 0%, #2563c7 100%);
-    border-radius: var(--radius);
-    padding: 12px 20px;
-  }
-
-  .total-label {
-    font-size: 12px;
-    opacity: 0.85;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .total-amount {
-    font-size: 28px;
-    font-weight: 800;
-    margin-top: 2px;
-  }
-
-  /* Notification bell */
-  .notif-btn {
-    position: absolute;
-    left: 16px;
-    top: 22px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    width: 40px; height: 40px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 18px;
-    transition: all .2s;
-  }
-  .notif-btn:hover { background: var(--accent); }
-  .notif-badge {
-    position: absolute;
-    top: -4px; left: -4px;
-    background: var(--danger);
-    color: white;
-    border-radius: 50%;
-    width: 18px; height: 18px;
-    font-size: 11px;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    display: none;
-  }
-
-  /* Alerts */
-  .alerts-panel {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 200;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
-  }
-  .alerts-box {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    width: 90%;
-    max-width: 400px;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 20px;
-  }
-  .alerts-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--warning);
-    margin-bottom: 16px;
-    text-align: center;
-  }
-  .alert-item {
-    background: var(--card);
-    border-right: 4px solid var(--warning);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-  }
-  .alert-item.urgent { border-color: var(--danger); }
-  .alert-item.safe { border-color: var(--success); }
-  .alert-name { font-weight: 700; font-size: 15px; }
-  .alert-info { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .alert-days { font-weight: 800; margin-top: 4px; }
-  .close-alerts {
-    width: 100%;
-    padding: 12px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-family: 'Tajawal', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    margin-top: 12px;
-    cursor: pointer;
-  }
-
-  /* Cards */
-  .container { padding: 12px 12px 0; }
-
-  .card {
-    background: var(--card);
-    margin-bottom: 12px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    transition: box-shadow .2s;
-  }
-  .card:hover { box-shadow: 0 4px 20px rgba(79,142,247,0.12); }
-
-  .card-header {
-    padding: 14px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: background .2s;
-  }
-  .card-header:hover { background: rgba(79,142,247,0.07); }
-
-  .person-name {
-    font-weight: 700;
-    font-size: 16px;
-    flex: 1;
-  }
-
-  .person-total {
-    background: var(--accent);
-    color: white;
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .card-toggle {
-    margin-right: 10px;
-    color: var(--muted);
-    font-size: 18px;
-    transition: transform .3s;
-  }
-  .card.open .card-toggle { transform: rotate(180deg); }
-
-  .card-body {
-    display: none;
-    padding: 12px 14px;
-    border-top: 1px solid var(--border);
-  }
-  .card.open .card-body { display: block; }
-
-  .name-input {
-    width: 100%;
-    padding: 10px 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'Tajawal', sans-serif;
-    font-size: 15px;
-    margin-bottom: 12px;
-    text-align: right;
-    outline: none;
-    transition: border-color .2s;
-  }
-  .name-input:focus { border-color: var(--accent); }
-
-  /* Ops */
-  .ops-list { margin-bottom: 10px; }
-
-  .op-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 10px;
     position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(255,255,255,0.07), transparent 70%);
+    pointer-events: none;
   }
 
-  .op-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 6px;
+  .app-icon-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+  .app-icon {
+    width: 90px; height: 90px;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    margin: 0 auto;
+  }
+  .app-icon img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .version-badge {
+    position: absolute;
+    bottom: -6px; left: 50%; transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
 
-  .field-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+  header h1 {
+    color: #fff;
+    font-size: 1.9rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.3rem;
+  }
+  header p {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
   }
 
-  .field-label {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 600;
-    letter-spacing: .5px;
-  }
-
-  .field-input {
-    padding: 8px 10px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Tajawal', sans-serif;
-    font-size: 14px;
-    width: 100%;
-    outline: none;
-    transition: border-color .2s;
-    text-align: right;
-  }
-  .field-input:focus { border-color: var(--accent); }
-
-  .withdraw-status {
+  .rating-row {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    margin-top: 6px;
-  }
-  .status-urgent { background: rgba(224,82,82,0.15); color: var(--danger); }
-  .status-soon   { background: rgba(247,201,79,0.15); color: var(--warning); }
-  .status-ok     { background: rgba(82,201,122,0.15); color: var(--success); }
-  .status-none   { background: rgba(123,130,168,0.1); color: var(--muted); }
-
-  .del-op-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(224,82,82,0.12);
-    border: none;
-    border-radius: 8px;
-    color: var(--danger);
-    padding: 5px 9px;
-    cursor: pointer;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 30px;
+    padding: 6px 14px;
+    color: #fff;
     font-size: 13px;
-    transition: background .2s;
-  }
-  .del-op-btn:hover { background: rgba(224,82,82,0.3); }
-
-  /* Buttons */
-  .btn {
-    width: 100%;
-    padding: 11px;
-    border: none;
-    border-radius: 10px;
-    font-family: 'Tajawal', sans-serif;
-    font-size: 14px;
     font-weight: 700;
-    cursor: pointer;
-    transition: opacity .2s, transform .1s;
+    margin-bottom: 1.5rem;
   }
-  .btn:active { transform: scale(0.98); }
-  .btn-blue { background: var(--accent); color: white; }
-  .btn-red  { background: var(--danger); color: white; margin-top: 8px; }
-  .btn-add-op { background: rgba(79,142,247,0.12); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); margin-bottom: 8px; }
+  .stars { color: #fbbf24; letter-spacing: 1px; }
 
-  /* FAB */
-  .fab {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, var(--accent), #2563c7);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 14px 32px;
-    font-family: 'Tajawal', sans-serif;
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(79,142,247,0.4);
-    transition: box-shadow .2s, transform .1s;
+  /* ── DOWNLOAD BUTTON ── */
+  .btn-download {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    background: #ffffff;
+    color: var(--brand-dark);
+    font-family: 'Cairo', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 900;
+    border-radius: 14px;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    transition: transform 0.18s, box-shadow 0.18s;
+    letter-spacing: 0.2px;
   }
-  .fab:hover { box-shadow: 0 12px 32px rgba(79,142,247,0.5); }
-  .fab:active { transform: translateX(-50%) scale(0.97); }
-
-  /* Empty state */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
+  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
+  .btn-download .dl-icon { font-size: 1.4rem; }
+  .btn-download .dl-size {
+    font-size: 11px;
+    font-weight: 600;
     color: var(--muted);
+    display: block;
   }
-  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 15px; }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+  /* ── MAIN ── */
+  main { padding: 1.5rem 1.1rem; max-width: 480px; margin: 0 auto; }
+
+  /* ── INFO CARDS ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .info-card-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--brand-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .info-card-label { font-size: 11px; color: var(--muted); }
+  .info-card-value { font-size: 13px; font-weight: 700; color: var(--text); }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    width: 4px; height: 20px;
+    background: linear-gradient(to bottom, var(--brand), #2563eb);
+    border-radius: 4px;
+    display: block;
+  }
+
+  /* ── SCREENSHOTS ── */
+  .screenshots-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-bottom: 1.75rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screenshots-scroll::-webkit-scrollbar { display: none; }
+  .screenshot {
+    flex-shrink: 0;
+    width: 160px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    background: #e5e0f5;
+    box-shadow: 0 2px 12px rgba(124,58,237,0.1);
+  }
+  .screenshot img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  .screenshot-label {
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-align: center;
+    background: var(--card);
+  }
+
+  /* ── FEATURES ── */
+  .features-list {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1.75rem;
+  }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .feature-item:last-child { border-bottom: none; }
+  .feature-item .fi-icon {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--brand-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* ── CTA SECONDARY ── */
+  .cta-card {
+    background: linear-gradient(135deg, #4c1d95, #1e3a8a);
+    border-radius: var(--radius);
+    padding: 1.75rem 1.25rem;
+    text-align: center;
+    margin-bottom: 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-card::before {
+    content: '';
+    position: absolute; top:-40px; right:-40px;
+    width: 140px; height: 140px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .cta-card h2 {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .cta-card p {
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    margin-bottom: 1.25rem;
+    line-height: 1.7;
+    position: relative;
+  }
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    background: #fff;
+    color: var(--brand-dark);
+    font-family: 'Cairo', sans-serif;
+    font-size: 1rem;
+    font-weight: 900;
+    border-radius: 12px;
+    text-decoration: none;
+    position: relative;
+    transition: transform 0.15s;
+  }
+  .btn-cta:hover { transform: scale(1.03); }
+
+  /* ── CODE BOX ── */
+  .code-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1.5px dashed var(--brand);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 1.75rem;
+  }
+  .code-label { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .code-value {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--brand);
+    letter-spacing: 4px;
+    direction: ltr;
+  }
+
+  /* ── INSTAGRAM ── */
+  .ig-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    background: linear-gradient(135deg, #f97316, #ec4899, #7c3aed);
+    border-radius: 14px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: opacity 0.15s;
+  }
+  .ig-link:hover { opacity: 0.9; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.25rem;
+    text-align: center;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .footer-links a {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .footer-links a:hover { color: var(--brand); }
+  .footer-copy { font-size: 12px; color: #c4b5fd; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade1 { animation: fadeUp 0.5s ease both; }
+  .fade2 { animation: fadeUp 0.5s ease 0.1s both; }
+  .fade3 { animation: fadeUp 0.5s ease 0.2s both; }
+
+  /* ── PULSE ── */
+  @keyframes pulse-dot {
+    0%,100%{ transform: scale(1); opacity:1;}
+    50%{ transform: scale(1.4); opacity:0.6;}
+  }
+  .live-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: pulse-dot 1.6s infinite;
+    flex-shrink: 0;
+  }
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="app-header">
-  <div style="position:relative;">
-    <div class="app-title">📊 تتبع الحساب</div>
-    <div class="notif-btn" onclick="openAlerts()" title="الإشعارات">
-      🔔
-      <div class="notif-badge" id="notifBadge">0</div>
-    </div>
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <div class="app-icon-wrap fade1">
+    <div class="app-icon"><img src="https://raw.githubusercontent.com/mizoux444/miz/refs/heads/main/3896195_ico.png" alt="Mizoux TV Logo"/></div>
+    <span class="version-badge">v2.0 PRO</span>
   </div>
-  <div class="total-box">
-    <div class="total-label">الرصيد الإجمالي</div>
-    <div class="total-amount" id="total">0.00 د.م</div>
+
+  <h1 class="fade2">Mizoux TV</h1>
+  <p class="fade2">أفضل تطبيق لمشاهدة القنوات المباشرة مجاناً</p>
+
+  <div class="rating-row fade2">
+    <span class="stars">★★★★★</span>
+    <span>4.9 / 5</span>
+    <span style="opacity:.5">·</span>
+    <span>+50K تحميل</span>
   </div>
-</div>
 
-<!-- Alerts Panel -->
-<div class="alerts-panel" id="alertsPanel" onclick="closeAlerts(event)">
-  <div class="alerts-box">
-    <div class="alerts-title">🔔 تنبيهات الشيكات</div>
-    <div id="alertsList"></div>
-    <button class="close-alerts" onclick="closeAlerts()">إغلاق</button>
-  </div>
-</div>
+  <a href="https://www.mediafire.com/file/nnlobzs6v5rt8vv/Mizoux_TV_PRO_.apk/file"
+     class="btn-download fade3" target="_blank">
+    <span class="dl-icon">⬇</span>
+    <span>
+      تحميل التطبيق الآن
+      <span class="dl-size">APK · 30 MB · مجاني</span>
+    </span>
+  </a>
+</header>
 
-<!-- Cards Container -->
-<div class="container" id="container">
-  <div class="empty-state" id="emptyState">
-    <div class="icon">📂</div>
-    <p>لا يوجد مستفيدون بعد.<br>اضغط على الزر أدناه لإضافة مستفيد.</p>
-  </div>
-</div>
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main>
 
-<!-- FAB -->
-<button class="fab" onclick="addPerson()">➕ إضافة مستفيد</button>
-
-<script>
-// ─── Utils ───────────────────────────────────────────────
-function getDaysUntil(dateStr) {
-  if (!dateStr) return null;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const target = new Date(dateStr); target.setHours(0,0,0,0);
-  return Math.ceil((target - today) / 86400000);
-}
-
-function statusFor(days) {
-  if (days === null) return { cls: 'status-none', text: 'لا يوجد تاريخ سحب' };
-  if (days < 0)      return { cls: 'status-urgent', text: `تأخر ${Math.abs(days)} يوم ⚠️` };
-  if (days === 0)    return { cls: 'status-urgent', text: 'اليوم هو يوم السحب! 🚨' };
-  if (days <= 3)     return { cls: 'status-soon',   text: `باقي ${days} يوم 🔔` };
-  return { cls: 'status-ok', text: `باقي ${days} يوم ✅` };
-}
-
-// ─── Notification Permission ──────────────────────────────
-function requestNotifPermission() {
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
-  }
-}
-
-function sendBrowserNotif(title, body) {
-  if ("Notification" in window && Notification.permission === "granted") {
-    new Notification(title, { body, icon: "📊" });
-  }
-}
-
-// ─── Calculate & Save ────────────────────────────────────
-function calculate() {
-  const cards = document.querySelectorAll(".card");
-  let total = 0;
-  let data = [];
-  let alerts = [];
-
-  cards.forEach(card => {
-    const nameInput = card.querySelector(".name-input");
-    const name = nameInput ? nameInput.value.trim() || "بدون اسم" : "بدون اسم";
-    const ops = card.querySelectorAll(".op-card");
-    let personTotal = 0;
-    let personOps = [];
-
-    ops.forEach(op => {
-      const inputs = op.querySelectorAll(".field-input");
-      const amount = Number(inputs[1] ? inputs[1].value : 0) || 0;
-      const dateVal = inputs[0] ? inputs[0].value : "";
-      const withdrawDate = inputs[2] ? inputs[2].value : "";
-
-      personTotal += amount;
-      total += amount;
-
-      // Status badge
-      const days = getDaysUntil(withdrawDate);
-      const status = statusFor(days);
-      const statusEl = op.querySelector(".withdraw-status");
-      if (statusEl) {
-        statusEl.className = "withdraw-status " + status.cls;
-        statusEl.textContent = status.text;
-      }
-
-      // Collect alerts
-      if (days !== null && days <= 3) {
-        alerts.push({ name, amount, withdrawDate, days });
-      }
-
-      personOps.push({ date: dateVal, amount, withdrawDate });
-    });
-
-    // Update header total
-    const totalBadge = card.querySelector(".person-total");
-    if (totalBadge) totalBadge.textContent = personTotal.toFixed(2) + " د.م";
-
-    // Update header name
-    const nameDiv = card.querySelector(".person-name");
-    if (nameDiv) nameDiv.textContent = name;
-
-    data.push({ name: nameInput ? nameInput.value : "", ops: personOps });
-  });
-
-  document.getElementById("total").textContent = total.toFixed(2) + " د.م";
-  document.getElementById("emptyState").style.display = cards.length === 0 ? "block" : "none";
-
-  localStorage.setItem("data", JSON.stringify(data));
-  updateAlertsBadge(alerts);
-  window._alerts = alerts;
-
-  // Send browser notifications for urgent ones
-  alerts.forEach(a => {
-    const key = "notif_" + a.name + "_" + a.withdrawDate;
-    if (!sessionStorage.getItem(key)) {
-      sessionStorage.setItem(key, "1");
-      if (a.days <= 3) {
-        sendBrowserNotif(
-          "🔔 تنبيه شيك",
-          `${a.name}: موعد السحب ${a.days === 0 ? "اليوم!" : `بعد ${a.days} يوم`} — ${a.amount.toFixed(2)} د.م`
-        );
-      }
-    }
-  });
-}
-
-function updateAlertsBadge(alerts) {
-  const badge = document.getElementById("notifBadge");
-  if (alerts.length > 0) {
-    badge.style.display = "flex";
-    badge.textContent = alerts.length;
-  } else {
-    badge.style.display = "none";
-  }
-}
-
-// ─── Alerts Panel ────────────────────────────────────────
-function openAlerts() {
-  const panel = document.getElementById("alertsPanel");
-  const list  = document.getElementById("alertsList");
-  const alerts = window._alerts || [];
-
-  if (alerts.length === 0) {
-    list.innerHTML = `
-      <div style="text-align:center;padding:24px;color:var(--success);font-size:15px;font-weight:700;">
-        ✅ لا توجد شيكات تستحق خلال 3 أيام
-      </div>`;
-  } else {
-    list.innerHTML = alerts.map(a => {
-      const cls = a.days <= 0 ? "urgent" : a.days <= 1 ? "urgent" : "";
-      const dayText = a.days < 0 ? `تأخر ${Math.abs(a.days)} يوم ⚠️`
-                    : a.days === 0 ? "اليوم! 🚨"
-                    : `بعد ${a.days} يوم 🔔`;
-      return `
-        <div class="alert-item ${cls}">
-          <div class="alert-name">👤 ${a.name}</div>
-          <div class="alert-info">المبلغ: ${a.amount.toFixed(2)} د.م &nbsp;|&nbsp; تاريخ السحب: ${a.withdrawDate}</div>
-          <div class="alert-days" style="color:${a.days <= 1 ? 'var(--danger)' : 'var(--warning)'}">⏰ ${dayText}</div>
-        </div>`;
-    }).join("");
-  }
-
-  panel.style.display = "flex";
-}
-
-function closeAlerts(e) {
-  if (!e || e.target === document.getElementById("alertsPanel")) {
-    document.getElementById("alertsPanel").style.display = "none";
-  }
-}
-
-// ─── Add Person ──────────────────────────────────────────
-function addPerson(data = {}) {
-  const container = document.getElementById("container");
-
-  const card = document.createElement("div");
-  card.className = "card";
-
-  card.innerHTML = `
-    <div class="card-header">
-      <div class="person-name">بدون اسم</div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="person-total">0.00 د.م</span>
-        <span class="card-toggle">▾</span>
+  <!-- INFO GRID -->
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-card-icon">🤖</div>
+      <div>
+        <div class="info-card-label">المتطلبات</div>
+        <div class="info-card-value">Android 5.0+</div>
       </div>
     </div>
-    <div class="card-body">
-      <input class="name-input" type="text" placeholder="اسم المستفيد">
-      <div class="ops-list"></div>
-      <button class="btn btn-add-op" onclick="addOp(this)">➕ إضافة شيك / عملية</button>
-      <button class="btn btn-red" onclick="deletePerson(this)">❌ حذف المستفيد</button>
-    </div>
-  `;
-
-  container.appendChild(card);
-
-  const header   = card.querySelector(".card-header");
-  const cardBody = card.querySelector(".card-body");
-  const nameInput = card.querySelector(".name-input");
-  const opsContainer = card.querySelector(".ops-list");
-
-  nameInput.value = data.name || "";
-  nameInput.oninput = calculate;
-
-  // Toggle
-  header.onclick = () => {
-    card.classList.toggle("open");
-  };
-  card.classList.add("open"); // open by default
-
-  // Load ops
-  if (data.ops && data.ops.length > 0) {
-    data.ops.forEach(o => addOp(null, opsContainer, o));
-  } else {
-    addOp(null, opsContainer);
-  }
-
-  calculate();
-  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
-}
-
-// ─── Add Op ──────────────────────────────────────────────
-function addOp(btn, container = null, data = {}) {
-  if (!container) {
-    container = btn.closest(".card-body").querySelector(".ops-list");
-  }
-
-  const div = document.createElement("div");
-  div.className = "op-card";
-
-  div.innerHTML = `
-    <button class="del-op-btn" onclick="deleteOp(this)">✕</button>
-    <div class="op-row">
-      <div class="field-wrap">
-        <span class="field-label">تاريخ الإصدار</span>
-        <input class="field-input" type="date" placeholder="تاريخ">
-      </div>
-      <div class="field-wrap">
-        <span class="field-label">المبلغ (د.م)</span>
-        <input class="field-input" type="number" placeholder="0.00">
+    <div class="info-card">
+      <div class="info-card-icon">📦</div>
+      <div>
+        <div class="info-card-label">الحجم</div>
+        <div class="info-card-value">30 MB</div>
       </div>
     </div>
-    <div class="field-wrap">
-      <span class="field-label">تاريخ السحب</span>
-      <input class="field-input" type="date" placeholder="تاريخ السحب">
+    <div class="info-card">
+      <div class="info-card-icon">📡</div>
+      <div>
+        <div class="info-card-label">الفئة</div>
+        <div class="info-card-value">قنوات · IPTV</div>
+      </div>
     </div>
-    <div class="withdraw-status status-none" style="margin-top:8px;">لا يوجد تاريخ سحب</div>
-  `;
+    <div class="info-card">
+      <div class="info-card-icon">🔄</div>
+      <div>
+        <div class="info-card-label">الإصدار</div>
+        <div class="info-card-value">2.0 PRO</div>
+      </div>
+    </div>
+  </div>
 
-  container.appendChild(div);
+  <!-- SCREENSHOTS -->
+  <p class="section-title">لقطة الشاشة</p>
+  <div class="screenshots-scroll">
+    <div class="screenshot">
+      <img src="https://raw.githubusercontent.com/mizoux444/miz/refs/heads/main/IMG_20260517_115737.jpg" alt="شاشة 1"/>
+      <div class="screenshot-label">الواجهة الرئيسية</div>
+    </div>
+    <div class="screenshot">
+      <img src="https://raw.githubusercontent.com/mizoux444/miz/refs/heads/main/IMG_20260517_115800.jpg" alt="شاشة 2"/>
+      <div class="screenshot-label">قائمة القنوات</div>
+    </div>
+  </div>
 
-  const inputs = div.querySelectorAll(".field-input");
-  inputs[0].value = data.date || new Date().toISOString().split('T')[0];
-  inputs[1].value = data.amount || "";
-  inputs[2].value = data.withdrawDate || "";
+  <!-- FEATURES -->
+  <p class="section-title">مميزات التطبيق</p>
+  <div class="features-list">
+    <div class="feature-item">
+      <div class="fi-icon">⚡</div>
+      بث سريع بدون تقطيع
+    </div>
+    <div class="feature-item">
+      <div class="fi-icon">📺</div>
+      1000+ قناة عربية وعالمية
+    </div>
+    <div class="feature-item">
+      <div class="fi-icon">🎞️</div>
+      جودة بث حتى 4K
+    </div>
+    <div class="feature-item">
+      <div class="fi-icon">📱</div>
+      يدعم جميع أجهزة Android
+    </div>
+    <div class="feature-item">
+      <div class="fi-icon">🔍</div>
+      خيار البحث عن القنوات
+    </div>
+    <div class="feature-item">
+      <div class="fi-icon">🔄</div>
+      تحديثات مستمرة للقنوات
+    </div>
+  </div>
 
-  inputs.forEach(i => i.oninput = calculate);
-  calculate();
-}
+  <!-- SCREEN CODE -->
+  <p class="section-title">كود الشاشات</p>
+  <div class="code-box">
+    <div class="code-label">لتحميل التطبيق على التلفاز</div>
+    <div class="code-value">2185583</div>
+  </div>
 
-// ─── Delete ──────────────────────────────────────────────
-function deleteOp(btn) {
-  btn.closest(".op-card").remove();
-  calculate();
-}
+  <!-- CTA CARD -->
+  <div class="cta-card">
+    <h2>ابدأ المشاهدة الآن 🎬</h2>
+    <p>حمّل التطبيق مجاناً واستمتع بأفضل تجربة مشاهدة للقنوات المباشرة بجودة عالية وبدون انقطاع.</p>
+    <a href="https://www.mediafire.com/file/nnlobzs6v5rt8vv/Mizoux_TV_PRO_.apk/file"
+       class="btn-cta" target="_blank">
+      ⬇ تحميل APK مجاناً
+    </a>
+  </div>
 
-function deletePerson(btn) {
-  if (confirm("⚠️ واش متأكد بغيتي تحذف هاد المستفيد؟")) {
-    btn.closest(".card").remove();
-    calculate();
-  }
-}
+  <!-- LIVE BADGE -->
+  <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:1.75rem;font-size:13px;font-weight:700;">
+    <span class="live-dot"></span>
+    <span>البث مباشر الآن • 24/7 بدون توقف</span>
+  </div>
 
-// ─── Boot ────────────────────────────────────────────────
-window.onload = function () {
-  requestNotifPermission();
+  <!-- INSTAGRAM -->
+  <a href="https://www.instagram.com/mizoux444?igsh=Z2l2aWdxYjI5b3B5"
+     class="ig-link" target="_blank">
+    <span style="font-size:1.3rem;">📸</span>
+    تابع المطور على Instagram
+    <span style="font-size:1.1rem;">@mizoux444</span>
+  </a>
 
-  // Check every minute for upcoming withdrawals
-  setInterval(() => calculate(), 60000);
+</main>
 
-  const saved = JSON.parse(localStorage.getItem("data") || "[]");
-  window._alerts = [];
-
-  if (saved.length === 0) {
-    addPerson();
-  } else {
-    saved.forEach(p => addPerson(p));
-  }
-};
-</script>
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="footer-links">
+    <a href="#">سياسة الخصوصية</a>
+    <a href="#">الشروط والأحكام</a>
+    <a href="#">الدعم الفني</a>
+  </div>
+  <p class="footer-copy">© 2026 Mizoux TV · جميع الحقوق محفوظة</p>
+</footer>
 
 </body>
 </html>
